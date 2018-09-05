@@ -24,40 +24,38 @@ var connection = mysql.createConnection({
 
 connection.connect(function(err) {
   if (err) throw err;
-  console.log("connected as id " + connection.threadId);
   firstStep();
 });
 
-function afterConnection() {
-  connection.query(
-    "SELECT * FROM products WHERE ?",
-  {
-    department_name: "Tech"
-  },
-    function(err, res) {
-        if (err) throw err;
-        for (var i=0; i<res.length; i++){
-            console.log(res[i].product_name);
-            console.log(res[i].price);
-            if (res[i].stock_quantity > 0){
-                console.log("In stock!");
-            }
-            console.log("\n-------------------------------------\n");
-        }
-        // console.log(res[0]);
-        // connection.end();
-    }
-  );
-}
+// function afterConnection() {
+//   connection.query(
+//     "SELECT * FROM products WHERE ?",
+//   {
+//     department_name: "Tech"
+//   },
+//     function(err, res) {
+//         if (err) throw err;
+//         for (var i=0; i<res.length; i++){
+//             console.log(res[i].product_name);
+//             console.log(res[i].price);
+//             if (res[i].stock_quantity > 0){
+//                 console.log("In stock!");
+//             }
+//             console.log("\n-------------------------------------\n");
+//         }
+//         // console.log(res[0]);
+//         // connection.end();
+//     }
+//   );
+// }
 
 function firstStep(){
-    connection.query("SELECT * FROM products", function(err, res){
-        if (err) throw err;
+    connection.query(
+        "SELECT * FROM products", function(err, res){
+        if (err) throw (err);
         for (var i=0; i<res.length; i++){
             itemList.push(res[i].product_name);
-        };
-        
-
+        }
         inquirer.prompt({
             name: "choice",
             type: "list",

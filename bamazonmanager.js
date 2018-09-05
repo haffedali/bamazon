@@ -91,15 +91,96 @@ function viewLow(){
 };
 //Use inquire to add said amount to inventory
 function addInv(){
+    var stock;
+    var choice;
+    var itemList = [];
     connection.connect(function(err) {
         if (err) throw err;
         console.log("connected as id " + connection.threadId);
         afterConnection();
       });
 
-    function afterConnection(){
-        connection.query("UPDATE products SET ? WHERE ?")
+      function afterConnection(){
+        connection.query(
+            "SELECT * FROM products", function(err, res){
+            if (err) throw (err);
+            for (var i=0; i<res.length;i++){
+                itemList.push(res[i].product_name)
+            }
+            inquirer.prompt({
+                name: "choice",
+                type: "list",
+                message: "What would you like to stock up on?",
+                choices: itemList
+            }).then(function(choice){
+                choice = choice.choice;
+                inquirer.prompt({
+                    type: "input",
+                    message: "How many would you like to add?",
+                    name: "amount",
+                    validate: function(name) {
+                      return (!isNaN(name))
+                    }
+                }).then(function(ans){
+                    var num = ans.amount;
+                    
+                    connection.query("SELECT * FROM products WHERE ?",
+                    {
+                        product_name: choice
+                    }
+                ,function(err, res){
+                    stock = parseInt(res[0].stock_quantity);
+                    stock += parseInt(num);
+                    var item = res[0].product_name;
+                    connection.query("UPDATE products SET ? WHERE ?"
+                    [
+                        {
+                            stock_quantity: stock
+                        },
+                        {
+                            product_name: item
+                        }
+                    ],function(err, res){
+                        console.log("There are now " + stock + " " + choice + "s");
+                        connection.end();
+                    }
+                );
+                });  
+                })
+            })
+        });
+    }
+}
+
+function addProd(){
+    connection.connect(function(err) {
+        if (err) throw err;
+        console.log("connected as id " + connection.threadId);
+        afterConnection();
+      });
+    function afterConnection() {
+        inquirer.prompt({
+            type:"input",
+            message: "What would you like to add? (name, department, price, stock)",
+            name: "product"
+        }).then(function(r){
+            var newR = r.product.split(", ")
+            var name = newR[0];
+            var depart = newR[1];
+            var price = parseInt(newR[2]);
+            var stock = parseInt(newR[3]);
+            var row = `INSERT INTO products (product_name, department_name, price, stock_quantity) VALUES(?,?,?,?)`;
+            var values = [name, depart, price, stock];
+
+
+            console.log(newR);
+            connection.query(row, values, function(err, res){
+                if (err) throw (err);
+                console.log("woot");
+            })
+            connection.end();
+        })
+        
+
     }
 };
-
-function addProd(){};
