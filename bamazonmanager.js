@@ -94,6 +94,7 @@ function addInv(){
     var stock;
     var choice;
     var itemList = [];
+    var num;
     connection.connect(function(err) {
         if (err) throw err;
         console.log("connected as id " + connection.threadId);
@@ -122,34 +123,67 @@ function addInv(){
                       return (!isNaN(name))
                     }
                 }).then(function(ans){
-                    var num = ans.amount;
-                    
-                    connection.query("SELECT * FROM products WHERE ?",
-                    {
-                        product_name: choice
-                    }
-                ,function(err, res){
-                    stock = parseInt(res[0].stock_quantity);
-                    stock += parseInt(num);
-                    var item = res[0].product_name;
-                    connection.query("UPDATE products SET ? WHERE ?"
-                    [
+                    num = ans.amount;
+                    connection.query(
+                        "SELECT * FROM products WHERE ?",
                         {
+                            product_name: choice
+                        }, 
+                        function(err, res){
+                        stock = parseInt(res[0].stock_quantity);
+                        stock += parseInt(num);
+                        var item = res[0].product_name;
+                        connection.query(
+                        "UPDATE products SET ? WHERE ?",
+                        [
+                            {
                             stock_quantity: stock
-                        },
-                        {
+                            },
+                            {
                             product_name: item
-                        }
-                    ],function(err, res){
-                        console.log("There are now " + stock + " " + choice + "s");
-                        connection.end();
-                    }
-                );
-                });  
+                            }
+                        ],function(err, res){
+                            if (err) throw (err);
+                            console.log("There are now " + stock + " " + choice + "s");
+                            connection.end();
+                            }
+                        );
+                    });
+                    // adder();
                 })
             })
         });
     }
+
+
+
+
+function adder(){    
+    connection.query(
+        "SELECT * FROM products WHERE ?",
+        {
+            product_name: choice
+        }, function(err, res){
+        stock = parseInt(res[0].stock_quantity);
+        stock += parseInt(num);
+        var item = res[0].product_name;
+        connection.query(
+        "UPDATE products SET ? WHERE ?"
+        [
+            {
+            stock_quantity: stock
+            },
+            {
+            product_name: "Sneakers"
+            }
+        ],function(err, res){
+            if (err) throw (err);
+            console.log("There are now " + stock + " " + choice + "s");
+            connection.end();
+            }
+        );
+    });  
+};
 }
 
 function addProd(){
@@ -164,14 +198,15 @@ function addProd(){
             message: "What would you like to add? (name, department, price, stock)",
             name: "product"
         }).then(function(r){
+            var depart;
             var newR = r.product.split(", ")
             var name = newR[0];
             var depart = newR[1];
             var price = parseInt(newR[2]);
             var stock = parseInt(newR[3]);
-            var row = `INSERT INTO products (product_name, department_name, price, stock_quantity) VALUES(?,?,?,?)`;
+            
             var values = [name, depart, price, stock];
-
+            var row = `INSERT INTO products (product_name, department_name, price, stock_quantity) VALUES(?,?,?,?)`;
 
             console.log(newR);
             connection.query(row, values, function(err, res){
@@ -184,3 +219,24 @@ function addProd(){
 
     }
 };
+
+// function department(){
+//     var depoList = [];
+//     var row = `INSERT INTO products (product_name, department_name, price, stock_quantity) VALUES(?,?,?,?)`;
+//     var values = [name, department(), price, stock];
+//     connection.query("SELECT * FROM products", function(err, res){
+//         if (err) throw (err);
+//         for (var i=0; i<res.length; i++){
+//             depoList.push(res[i].department_name);
+//         }
+//         console.log(depoList);
+//         inquirer.prompt({
+//             name: "choice",
+//             type: "list",
+//             message: "Which department is this item?",
+//             choices: ["okay", "best"]
+//         }).then(function(r){
+//             return r.choice;
+//         })
+//     });
+// }
