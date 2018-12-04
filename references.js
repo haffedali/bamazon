@@ -50,3 +50,4 @@ function runSearch() {
         readProducts();
       }
     );
+  };

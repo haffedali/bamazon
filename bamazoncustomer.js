@@ -23,7 +23,8 @@ connection.connect(function(err) {
   firstStep();
 });
 
-
+//Super nested and not very 'functional programing of me'
+//warrants refractoring 
 function firstStep(){
     connection.query(
         "SELECT * FROM products", function(err, res){

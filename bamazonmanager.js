@@ -14,7 +14,8 @@ var connection = mysql.createConnection({
     password: "",
     database: "bamazon"
   });
-
+//at start choose from four options
+//each option fires a serarate function
 inquirer.prompt({
     type: "list",
     message: "What would you like to access?",
@@ -24,30 +25,33 @@ inquirer.prompt({
         "Add to Inventory",
         "Add New Product"
     ],
-    name: "choice"
-}).then(function(ans){
-    switch (ans.choice) {
-    case "View Products for Sale":
-        viewProd();
-        break;
-    case "View Low Inventory":
-        viewLow();
-        break;
-    case "Add to Inventory":
-        addInv();
-        break;
-    case "Add New Product":
-        addProd();
-        break;
-    }
-})
+    name: "choice"})
+    .then(function(ans){
+        switch (ans.choice) {
+        case "View Products for Sale":
+            viewProd();
+            break;
+        case "View Low Inventory":
+            viewLow();
+            break;
+        case "Add to Inventory":
+            addInv();
+            break;
+        case "Add New Product":
+            addProd();
+            break;
+        }
+    })
 
+
+
+//View all available products
 function viewProd(){
-    connection.connect(function(err) {
-        if (err) throw err;
-        console.log("connected as id " + connection.threadId);
-        afterConnection();
-      });
+        connection.connect(function(err) {
+            if (err) throw err;
+            console.log("connected as id " + connection.threadId);
+            afterConnection();
+        });
       
       function afterConnection() {
         connection.query(
@@ -65,12 +69,14 @@ function viewProd(){
       }
 };
 
+
+//View all products that have reached 'low stock' threshhold
 function viewLow(){
-    connection.connect(function(err) {
-        if (err) throw err;
-        console.log("connected as id " + connection.threadId);
-        afterConnection();
-      });
+        connection.connect(function(err) {
+            if (err) throw err;
+            console.log("connected as id " + connection.threadId);
+            afterConnection();
+        });
       
       function afterConnection() {
         connection.query(
@@ -89,6 +95,8 @@ function viewLow(){
         );
       }
 };
+
+
 //Use inquire to add said amount to inventory
 function addInv(){
     var stock;
@@ -185,7 +193,7 @@ function adder(){
     });  
 };
 }
-
+//Add new products to be listed with inventory
 function addProd(){
     connection.connect(function(err) {
         if (err) throw err;
@@ -220,23 +228,3 @@ function addProd(){
     }
 };
 
-// function department(){
-//     var depoList = [];
-//     var row = `INSERT INTO products (product_name, department_name, price, stock_quantity) VALUES(?,?,?,?)`;
-//     var values = [name, department(), price, stock];
-//     connection.query("SELECT * FROM products", function(err, res){
-//         if (err) throw (err);
-//         for (var i=0; i<res.length; i++){
-//             depoList.push(res[i].department_name);
-//         }
-//         console.log(depoList);
-//         inquirer.prompt({
-//             name: "choice",
-//             type: "list",
-//             message: "Which department is this item?",
-//             choices: ["okay", "best"]
-//         }).then(function(r){
-//             return r.choice;
-//         })
-//     });
-// }
